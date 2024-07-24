@@ -46,6 +46,11 @@ catkin_package(
         CATKIN_DEPENDS tf
 )
 
+# Testing subscriber to print some statistics
+add_executable(pointcloud2_listener src/pointcloud2_listener.cpp)
+target_link_libraries(pointcloud2_listener ${catkin_LIBRARIES})
+
+
 add_library(livox_laser_simulation SHARED src/livox_points_plugin.cpp src/livox_ode_multiray_shape.cpp)
 target_link_libraries(livox_laser_simulation ${catkin_LIBRARIES} RayPlugin)
 

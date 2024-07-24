@@ -30,7 +30,7 @@
         </geometry>
       </visual>
 
-      <sensor type="ray" name="laser_livox">
+<sensor type="ray" name="laser_livox">
         <pose>0 0 0.05 0 0 0</pose>
         <visualize>true</visualize>
         <always_on>True</always_on>
@@ -39,6 +39,7 @@
         <plugin name="gazebo_ros_laser_controller" filename="liblivox_laser_simulation.so">
 			  <ray>
 			  <scan>
+        <!-- I dont understand the effect of changing these parameters -->
 				  <horizontal>
 				    <samples>100</samples>
 				    <resolution>1</resolution>
@@ -52,20 +53,20 @@
             <max_angle>3.1415926535897931</max_angle>
 				  </vertical>
 			  </scan>
+        <!-- End of "these parameters" -->
 			  <range>
-				  <min>0.1</min>
-				  <max>40</max>
+				  <min>0.05</min>
+				  <max>30</max>
 				  <resolution>1</resolution>
 			  </range>
-        <!-- noise not implemented -->
 			  <noise>
 				  <type>gaussian</type>
 				  <mean>0.0</mean>
-				  <stddev>0.0</stddev>
+				  <stddev>1</stddev>
 			  </noise>
 			  </ray>
-          <visualize>True</visualize>
-		      <samples>20000</samples>
+          <visualize>false</visualize>
+		      <samples>21600</samples>
 		      <downsample>1</downsample>
 		      <csv_file_name>mid360-real-centr.csv</csv_file_name>
           <publish_pointcloud_type>2</publish_pointcloud_type>
@@ -76,8 +77,5 @@
 
     </link>
     
-    
-
-
   </model>
 </sdf>

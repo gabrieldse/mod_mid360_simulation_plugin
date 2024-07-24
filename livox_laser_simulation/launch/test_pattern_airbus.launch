@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<param name="drone_description_0" command="$(find xacro)/xacro '$(find sqdr_simulator_description)/urdf/inspector/inspector_lidar.urdf.xacro' robotNamespace:=drone0" />
+
+	<arg name="x" default="3" />
+  	<arg name="y" default="3" />
+  	<arg name="z" default="0.15" />
+
+	<arg name="world" default="$(find livox_laser_simulation)/worlds/test_pattern_lidar.world" />
+
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="world_name" value="$(arg world)"/>
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+		<arg name="verbose" value="true"/>
+	</include>
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find livox_laser_simulation)/rviz/lidar_airbus.rviz" />
+
+	<!-- <node name="spawn_urdf_0" pkg="gazebo_ros" type="spawn_model" args="-urdf -param drone_description_0 -model drone0 -x 0.0 -y 0.0 -z -5.24" /> -->
+
+	<node name="spawn_model" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+		args="-urdf -param drone_description_0 -x $(arg x) -y $(arg y) -z $(arg z) -model drone0" />
+
+</launch>
