@@ -120,6 +120,8 @@ class LivoxPointsPlugin : public RayPlugin {
     double minDist = 0.1;
 
     bool useInf = true;
+
+    double noise_stddev;
 };
 
 }  // namespace gazebo
