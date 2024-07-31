@@ -57,7 +57,6 @@
 				  <max>40</max>
 				  <resolution>1</resolution>
 			  </range>
-        <!-- noise not implemented -->
 			  <noise>
 				  <type>gaussian</type>
 				  <mean>0.0</mean>
