@@ -16,7 +16,7 @@ struct AviaRotateInfo {
     double time;
     double azimuth;
     double zenith;
-    uint8_t line;
+    uint8_t ring;
 };
 
 

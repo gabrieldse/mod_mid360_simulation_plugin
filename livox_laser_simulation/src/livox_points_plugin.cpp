@@ -50,7 +50,7 @@ void convertDataToRotateInfo(const std::vector<std::vector<double>> &datas, std:
             avia_infos.back().time = data[0];
             avia_infos.back().azimuth = data[1] * deg_2_rad;
             avia_infos.back().zenith = data[2] * deg_2_rad - M_PI_2;
-            avia_infos.back().line = i % 4;
+            avia_infos.back().ring = i % 4;
         } else {
             ROS_INFO_STREAM("data size is not 3!");
         }
@@ -562,8 +562,8 @@ void LivoxPointsPlugin::PublishPointCloud2XYZRTLT(std::vector<std::pair<int, Avi
             pt.z = point.Z();
             pt.intensity = static_cast<float>(intensity);
             pt.tag = 0;
-            pt.line = pair.second.line;
-            pt.timestamp = static_cast<double>(1e9/200000*i)+header_timestamp_sec_nsec;    
+            pt.ring = pair.second.ring;
+            pt.time = static_cast<double>(1e9/200000*i)+header_timestamp_sec_nsec;    
 
             pc.push_back(std::move(pt));
         }
@@ -640,7 +640,7 @@ void LivoxPointsPlugin::PublishLivoxROSDriverCustomMsg(std::vector<std::pair<int
             pt.x = point.X();
             pt.y = point.Y();
             pt.z = point.Z();
-            pt.line = pair.second.line;
+            pt.ring = pair.second.ring;
             // ROS_INFO_STREAM("offset_time: " << pt.offset_time );
             pt.tag = 0x10;
             pt.reflectivity = 100;

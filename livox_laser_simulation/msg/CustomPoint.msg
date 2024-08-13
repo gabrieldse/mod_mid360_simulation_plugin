@@ -6,5 +6,5 @@ float32 y               # Y axis, unit:m
 float32 z               # Z axis, unit:m
 uint8 reflectivity      # reflectivity, 0~255
 uint8 tag               # livox tag
-uint8 line              # laser number in lidar
+uint8 ring              # laser number in lidar
 

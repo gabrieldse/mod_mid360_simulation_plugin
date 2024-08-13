@@ -21,10 +21,10 @@ struct LivoxPointXyzrtlt{
   float y;            /**< y             */
   float z;            /**< z             */
   
-  float intensity; /**< intensity   */
+  float intensity;    /**< intensity   */
   uint8_t tag;        /**< Livox point tag   */
-  uint8_t line;       /**< Laser line id     */
-  double timestamp; /**< Timestamp         */
+  uint16_t ring;       /**< Laser ring id     */
+  float time;        /**< time         */
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
   EIGEN_ALIGN16;
 };
@@ -37,8 +37,8 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (LivoxPointXyzrtlt,
                                    (float, z, z)
                                    (float, intensity, intensity)
                                    (uint8_t, tag, tag)
-                                   (uint8_t, line, line)
-                                   (double, timestamp, timestamp)
+                                   (uint16_t, ring, ring)
+                                   (float, time, time)
 )
 
 #endif
