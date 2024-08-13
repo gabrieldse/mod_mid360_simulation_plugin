@@ -23,10 +23,14 @@
 
 //noise
 #include <random>
+std::default_random_engine generator;
+std::normal_distribution<double> dist(0, 0);
+std::normal_distribution<double> angle(0, 0);
 // Create a random number generator
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_real_distribution<> dis(-0.5, 0.5); // Distribution in the range [-0.5, 0.5]
+
+// std::random_device rd;
+// std::mt19937 gen(rd());
+// std::uniform_real_distribution<> dis(-0.5, 0.5); // Distribution in the range [-0.5, 0.5]
 
 namespace gazebo {
 
@@ -148,10 +152,15 @@ void LivoxPointsPlugin::Load(gazebo::sensors::SensorPtr _parent, sdf::ElementPtr
         rayShape->AddRay(start_point, end_point);
     }
 
-    
-    //noise_stddev = sdfPtr->Get<double>("noise_stddev", 0.0);
     noise_stddev = sdf->Get<double>("noise_stddev");
-    ROS_INFO_STREAM("Gaussian noise stddev: "<<noise_stddev);
+    ROS_INFO_STREAM("Gaussian distance noise stddev: "<<noise_stddev);
+    noise_angle_stddev = sdf->Get<double>("noise_angle_stddev");
+    ROS_INFO_STREAM("Gaussian angle noise stddev: "<<noise_angle_stddev);
+    mean = sdf->Get<double>("mean");
+    ROS_INFO_STREAM("Gaussian mean: "<<mean);
+    dist = std::normal_distribution<double>(mean, noise_stddev);
+    angle = std::normal_distribution<double>(mean, noise_angle_stddev);
+    //noise_stddev = sdfPtr->Get<double>("noise_stddev", 0.0);
     // sdfPtr->Get<int>("samples");
 }
 
@@ -384,11 +393,8 @@ void LivoxPointsPlugin::PublishPointCloud(std::vector<std::pair<int, AviaRotateI
             auto range = rayShape->GetRange(pair.first);
             auto intensity = rayShape->GetRetro(pair.first);
 
-            // Apply noise
-            if (noise_stddev > 0.0) {
-                ROS_INFO_STREAM("range before: " << range);
-                range += noise_stddev * dis(gen); // Add noise
-                ROS_INFO_STREAM("range after: " << range);
+              if (noise_stddev > 0.0) {
+                range += dist(generator); // Add noise
                 if (range < 0) range = 0;  // Ensure range is non-negative
             }
             if (range >= maxDist || range <= minDist || range <= 1e-5) {
@@ -446,11 +452,8 @@ void LivoxPointsPlugin::PublishPointCloud2XYZ(std::vector<std::pair<int, AviaRot
             auto range = rayShape->GetRange(pair.first);
             auto intensity = rayShape->GetRetro(pair.first);
 
-            // Apply noise
-            if (noise_stddev > 0.0) {
-                ROS_INFO_STREAM("range before: " << range);
-                range += noise_stddev * dis(gen); // Add noise
-                ROS_INFO_STREAM("range after: " << range);
+              if (noise_stddev > 0.0) {
+                range += dist(generator); // Add noise
                 if (range < 0) range = 0;  // Ensure range is non-negative
             }
 
@@ -519,6 +522,11 @@ void LivoxPointsPlugin::PublishPointCloud2XYZRTLT(std::vector<std::pair<int, Avi
     // auto start = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     for (int i = 0; i < points_pair.size(); ++i) {
         std::pair<int, AviaRotateInfo> &pair = points_pair[i];
+        // Angle noise
+        if (noise_stddev != 0) {
+            pair.second.zenith += angle(generator);
+            pair.second.azimuth += angle(generator);
+        }
         int verticle_index = roundf((pair.second.zenith - verticle_min) / verticle_incre);
         int horizon_index = roundf((pair.second.azimuth - angle_min) / angle_incre);
         if (verticle_index < 0 || horizon_index < 0) {
@@ -528,11 +536,9 @@ void LivoxPointsPlugin::PublishPointCloud2XYZRTLT(std::vector<std::pair<int, Avi
             auto index = (verticalRayCount - verticle_index - 1) * rayCount + horizon_index;
             auto range = rayShape->GetRange(pair.first);
             auto intensity = rayShape->GetRetro(pair.first);
-            // Apply noise
-            if (noise_stddev > 0.0) {
-                ROS_INFO_STREAM("range before: " << range);
-                range += noise_stddev * dis(gen); // Add noise
-                ROS_INFO_STREAM("range after: " << range);
+            // Apply noise to range
+              if (noise_stddev > 0.0) {
+                range += dist(generator); // Add noise
                 if (range < 0) range = 0;  // Ensure range is non-negative
             }
             if (range >= maxDist || range <= minDist|| abs(range) <= 1e-5) {
@@ -599,6 +605,7 @@ void LivoxPointsPlugin::PublishLivoxROSDriverCustomMsg(std::vector<std::pair<int
     ros::Time timestamp = ros::Time::now();
     for (int i = 0; i < points_pair.size(); ++i) {
         std::pair<int, AviaRotateInfo> &pair = points_pair[i];
+
         int verticle_index = roundf((pair.second.zenith - verticle_min) / verticle_incre);
         int horizon_index = roundf((pair.second.azimuth - angle_min) / angle_incre);
         if (verticle_index < 0 || horizon_index < 0) {
@@ -610,11 +617,10 @@ void LivoxPointsPlugin::PublishLivoxROSDriverCustomMsg(std::vector<std::pair<int
             auto intensity = rayShape->GetRetro(pair.first);
             // Apply noise
             if (noise_stddev > 0.0) {
-                ROS_INFO_STREAM("range before: " << range);
-                range += noise_stddev * dis(gen); // Add noise
-                ROS_INFO_STREAM("range after: " << range);
+                range += dist(generator); // Add noise
                 if (range < 0) range = 0;  // Ensure range is non-negative
             }
+
             if (range >= maxDist || range <= minDist || abs(range) <= 1e-5) {
                 range = 0.0;
             }

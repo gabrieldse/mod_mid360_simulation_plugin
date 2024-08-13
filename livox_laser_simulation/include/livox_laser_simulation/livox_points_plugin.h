@@ -9,6 +9,8 @@
 #include <gazebo/plugins/RayPlugin.hh>
 #include "livox_ode_multiray_shape.h"
 
+
+
 namespace gazebo {
 struct AviaRotateInfo {
     double time;
@@ -122,6 +124,9 @@ class LivoxPointsPlugin : public RayPlugin {
     bool useInf = true;
 
     double noise_stddev;
+    double noise_angle_stddev;
+    double mean;
+
 };
 
 }  // namespace gazebo
