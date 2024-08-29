@@ -39,48 +39,94 @@ catkin build -DCMAKE_BUILD_TYPE=Release
 To add the plugin to your robot model add the following lines to your sdf file create a link and then attach the sensor to the link as such:
 
 ```xml
-<sensor type="ray" name="laser_livox">
-        <pose>0 0 0.0 0 0 0</pose>
-        <visualize>true</visualize>
-        <always_on>True</always_on>
-        <update_rate>10</update_rate>
-        <!-- This ray plgin is only for visualization. -->
-        <plugin name="gazebo_ros_laser_controller" filename="liblivox_laser_simulation.so">
-			  <ray>
-			  <scan>
-				  <horizontal>
-				    <samples>100</samples>
-				    <resolution>1</resolution>
-				    <min_angle>-3.1415926535897931</min_angle>
-            <max_angle>3.1415926535897931</max_angle>
-				  </horizontal>
-				  <vertical>
-				    <samples>50</samples>
-				    <resolution>1</resolution>
-				    <min_angle>-3.1415926535897931</min_angle>
-            <max_angle>3.1415926535897931</max_angle>
-				  </vertical>
-			  </scan>
-			  <range>
-				  <min>0.1</min>
-				  <max>40</max>
-				  <resolution>1</resolution>
-			  </range>
-			  <noise>
-				  <type>gaussian</type>
-				  <mean>0.0</mean>
-				  <stddev>0.0</stddev>
-			  </noise>
-			  </ray>
-          <visualize>True</visualize>
-		      <samples>20000</samples>
-		      <downsample>1</downsample>
-		      <csv_file_name>mid360-real-centr.csv</csv_file_name>
-          <publish_pointcloud_type>2</publish_pointcloud_type>
-		      <ros_topic>/livox/lidar</ros_topic>
-          <frameName>base_link</frameName>
-        </plugin>
-      </sensor>
+<!-- LIDAR sensor -->
+    <link name="link_lidar">
+    <visual>
+      <origin xyz="0 0 5.0e-05" rpy="0 0 0"/>
+      <geometry>
+        <!-- The default unity of meshes is meters in gazebo but millimeter for other mesh softwares -->
+        <mesh filename="$(find sqdr_simulator_media)/media/models/lidar_unitree_l1/meshes/lidar_unitree_l1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+    <!-- SENSOR PLUGIN -->
+    <gazebo reference="link_lidar">
+      <sensor type="ray" name="laser_livox">
+          <!-- To center the plugin at the center of the mesh -->
+          <pose>0.01 0.015 0.02 0 0 0</pose>
+          <visualize>true</visualize>
+          <!-- 11 for the unitree l1 and 10 for the livox mid 360 -->
+          <update_rate>11</update_rate>
+         
+          <plugin name="gazebo_ros_laser_controller" filename="liblivox_laser_simulation.so">
+            <ray>
+              <scan>
+                 <!-- These parameters are only for the visualization
+                 horizontal or vertical samples is the amount showed lines.
+                 Do not change the resolution or min_angle/max_angle -->
+                <horizontal>
+                  <samples>100</samples>
+                  <resolution>1</resolution>
+                  <min_angle>-3.1415926535897931</min_angle>
+                  <max_angle>3.1415926535897931</max_angle>
+                </horizontal>
+                <vertical>
+                  <samples>100</samples>
+                  <resolution>1</resolution>
+                  <min_angle>-3.1415926535897931</min_angle>
+                  <max_angle>3.1415926535897931</max_angle>
+                </vertical>
+                <!-- End of visualisation parameters -->
+              </scan>
+              
+              <range>
+                <min>1</min> <!-- <min>0.05</min>  -->
+                <max>30</max>
+                <!-- <resolution>1</resolution>  --> <!-- apparently useless -->
+              </range>
+
+              <noise>
+                <type>gaussian</type>
+                <mean>0.0</mean>
+                <!-- FOR some reason the noise is not working  -->
+                <stddev>0.1</stddev>
+              </noise>
+            </ray>
+
+              <noise_stddev>0.002</noise_stddev>
+              <noise_angle_stddev>0.02</noise_angle_stddev>
+              <mean>0.0</mean>
+
+              <visualize>false</visualize>
+              <!-- Samples in points per second*** -->
+              <samples>2160</samples>
+              <!-- Downsample: 
+              1 or less  = full samples
+              2 = 1/2 of the points
+              5 = 1/5 of the points -->
+              <downsample>1</downsample>
+
+              <!-- Here you change the CSV file of the correct scan patter.
+              e.g mid360-real-centr.csv,
+              unitree_polar.csv  -->
+              <csv_file_name>unitree_polar.csv</csv_file_name>
+
+              <!-- Types of pointcloud type:
+              0 = SENSOR_MSG_POINT_CLOUD
+              1 = SENSOR_MSG_POINT_CLOUD2_POINTXYZ
+              2 = SENSOR_MSG_POINT_CLOUD2_LIVOXPOINTXYZRTLT
+              3 = livox_laser_simulation_CUSTOM_MSG
+               -->
+              <publish_pointcloud_type>2</publish_pointcloud_type>
+              <!-- Currently not implemented -->
+              <robotNamespace>$(arg robotNamespace)</robotNamespace>
+              <ros_topic>/unilidar/cloud</ros_topic>
+              <frameName>unilidar_lidar</frameName>
+
+          </plugin>
+        </sensor>
+    </gazebo> 
 ```
 ### Parameters 
 The main parameters you may want to change are:
