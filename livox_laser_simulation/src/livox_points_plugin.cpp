@@ -518,7 +518,7 @@ void LivoxPointsPlugin::PublishPointCloud2XYZRTLT(std::vector<std::pair<int, Avi
     ros::Time header_timestamp = ros::Time::now();
     auto header_timestamp_sec_nsec = header_timestamp.toNSec();
 
-    
+                
     // auto start = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     for (int i = 0; i < points_pair.size(); ++i) {
         std::pair<int, AviaRotateInfo> &pair = points_pair[i];
@@ -563,10 +563,11 @@ void LivoxPointsPlugin::PublishPointCloud2XYZRTLT(std::vector<std::pair<int, Avi
             pt.intensity = static_cast<float>(intensity);
             pt.tag = 0;
             pt.ring = pair.second.ring;
-            pt.time = static_cast<double>(1e9/200000*i)+header_timestamp_sec_nsec;    
-
+            // The time was being badly handled so I commented it
+            // pt.time = static_cast<double>(1e9/21600*i)+header_timestamp_sec_nsec;    
             pc.push_back(std::move(pt));
         }
+
     }
     pcl::toROSMsg(pc, scan_point);
     scan_point.header.stamp = header_timestamp;

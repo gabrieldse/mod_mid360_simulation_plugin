@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(gazebo REQUIRED)
 find_package(PCL REQUIRED)
+
 include_directories(${GAZEBO_INCLUDE_DIRS})
 add_message_files(FILES
     CustomPoint.msg
@@ -50,3 +51,12 @@ add_library(livox_laser_simulation SHARED src/livox_points_plugin.cpp src/livox_
 target_link_libraries(livox_laser_simulation ${catkin_LIBRARIES} RayPlugin)
 
 target_link_libraries(livox_laser_simulation libprotobuf.so.9)
+
+# Add the executable for the sensor subscriber node
+add_executable(sensor_subscriber_node src/sensor_subscriber.cpp)
+
+# Link the executable with the required libraries
+target_link_libraries(sensor_subscriber_node
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
